@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>꿈 기반 AI 해몽 시스템</title>
+    <style>
+      body {
+        font-family: "Pretendard", "Noto Sans KR", Arial, sans-serif;
+        background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 540px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        padding: 2.5em 2em 2em 2em;
+      }
+      h1 {
+        text-align: center;
+        color: #4f46e5;
+        margin-bottom: 1.2em;
+        letter-spacing: -1px;
+      }
+      form {
+        margin-bottom: 1.5em;
+      }
+      textarea {
+        width: 100%;
+        min-height: 90px;
+        border: 1.5px solid #a5b4fc;
+        border-radius: 8px;
+        padding: 1em;
+        font-size: 1.1em;
+        resize: vertical;
+        box-sizing: border-box;
+        outline: none;
+        transition: border 0.2s;
+      }
+      textarea:focus {
+        border: 1.5px solid #6366f1;
+        background: #f5f7ff;
+      }
+      button {
+        background: linear-gradient(90deg, #6366f1 60%, #818cf8 100%);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.7em 2.2em;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 0.7em;
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+        transition: background 0.2s;
+      }
+      button:hover {
+        background: linear-gradient(90deg, #818cf8 0%, #6366f1 100%);
+      }
+      .box {
+        background: #f5f7ff;
+        border: 1.5px solid #a5b4fc;
+        border-radius: 10px;
+        padding: 1.3em 1em;
+        margin-top: 1.2em;
+        font-size: 1.07em;
+        color: #22223b;
+        line-height: 1.7;
+        word-break: keep-all;
+      }
+      .label {
+        color: #6366f1;
+        font-weight: bold;
+      }
+      @media (max-width: 600px) {
+        .container {
+          padding: 1.2em 0.5em;
+        }
+        h1 {
+          font-size: 1.3em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- 페이지 제목 -->
+      <h1>🌙 꿈 해몽 & 감정 기반 음식 추천</h1>
+      <!-- 사용자 입력 폼 -->
+      <form onsubmit="event.preventDefault(); sendRequest();">
+        <textarea
+          id="message"
+          placeholder="여기에 꿈 내용을 입력하세요!"
+        ></textarea
+        ><br />
+        <button type="submit">AI 해몽 요청</button>
+      </form>
+      <!-- 해몽 결과 출력 박스 -->
+      <div id="responseBox" class="box" style="display: none"></div>
+    </div>
+    <script>
+      // 해몽 요청 + 결과 표시 함수
+      async function sendRequest() {
+        // 1. 사용자가 입력한 내용 가져오기
+        const message = document.getElementById("message").value;
+        if (!message.trim()) {
+          alert("꿈 내용을 입력해 주세요!");
+          return;
+        }
+
+        // 2. 로딩 메시지 출력
+        document.getElementById("responseBox").style.display = "block";
+        document.getElementById("responseBox").innerHTML =
+          "AI가 해몽 중입니다... ⏳";
+
+        // 3. 서버로 POST 요청
+        const res = await fetch("/api/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        });
+
+        // 4. 응답 파싱
+        const data = await res.json();
+
+        // 5. 값이 없거나 배열이면 보기 좋게 하는 보조 함수
+        function show(val) {
+          if (Array.isArray(val)) return val.length ? val.join(", ") : "-";
+          if (typeof val === "string" && val.trim()) return val;
+          return "-";
+        }
+
+        // 6. 각 항목별 출력 함수
+        document.getElementById("responseBox").innerHTML = `
+          <div><span class="label">해몽:</span> ${show(data.reply)}</div>
+          <div><span class="label">감정:</span> ${show(data.emotion)}</div>
+          <div><span class="label">키워드(Rule):</span> ${show(
+            data.keywordsRule
+          )}</div>
+          <div><span class="label">키워드(GPT):</span> ${show(
+            data.keywordsOpenAI
+          )}</div>
+          <div><span class="label">키워드(Kiwi):</span> ${show(
+            data.keywordsKiwi
+          )}</div>
+          <div><span class="label">감정 관련 호르몬:</span> ${show(
+            data.hormone
+          )}</div>
+          <div><span class="label">감정 관련 영양소:</span> ${show(
+            data.nutrients
+          )}</div>
+          <div><span class="label">감정 개선 추천 음식:</span> ${show(
+            data.mappedFoods
+          )}</div>
+        `;
+      }
+    </script>
+  </body>
+</html>
