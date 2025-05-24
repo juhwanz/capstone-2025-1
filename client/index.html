@@ -111,9 +111,9 @@
         }
 
         // 2. 로딩 메시지 출력
-        document.getElementById("responseBox").style.display = "block";
-        document.getElementById("responseBox").innerHTML =
-          "AI가 해몽 중입니다... ⏳";
+        const box = document.getElementById("responseBox");
+        box.style.display = "block";
+        box.innerHTML = "AI가 해몽 중입니다...⏳ ";
 
         // 3. 서버로 POST 요청
         const res = await fetch("/api/ask", {
@@ -132,29 +132,66 @@
           return "-";
         }
 
-        // 6. 각 항목별 출력 함수
-        document.getElementById("responseBox").innerHTML = `
-          <div><span class="label">해몽:</span> ${show(data.reply)}</div>
-          <div><span class="label">감정:</span> ${show(data.emotion)}</div>
-          <div><span class="label">키워드(Rule):</span> ${show(
-            data.keywordsRule
-          )}</div>
-          <div><span class="label">키워드(GPT):</span> ${show(
-            data.keywordsOpenAI
-          )}</div>
-          <div><span class="label">키워드(Kiwi):</span> ${show(
-            data.keywordsKiwi
-          )}</div>
-          <div><span class="label">감정 관련 호르몬:</span> ${show(
-            data.hormone
-          )}</div>
-          <div><span class="label">감정 관련 영양소:</span> ${show(
-            data.nutrients
-          )}</div>
-          <div><span class="label">감정 개선 추천 음식:</span> ${show(
-            data.mappedFoods
-          )}</div>
-        `;
+        // 결과 출력 구성
+        box.innerHTML = `
+      <div><span class="label">🔮 해몽 (Rule 기반):</span> ${show(
+        data.outputRule
+      )}</div>
+      <div><span class="label">🔮 해몽 (GPT 기반):</span> ${show(
+        data.outputGPT
+      )}</div>
+      <div><span class="label">🔮 해몽 (Kiwi 기반):</span> ${show(
+        data.outputKIWI
+      )}</div>
+
+  <div style="margin-top: 1em"><span class="label">😊 감정 (Rule):</span> ${show(
+    data.emotionRule
+  )}</div>
+  <div><span class="label">🤖 감정 (GPT):</span> ${show(data.emotionGPT)}</div>
+  <div><span class="label">🍃 감정 (Kiwi):</span> ${show(
+    data.emotionKIWI
+  )}</div>
+
+  <div style="margin-top: 1em"><span class="label">키워드 (Rule):</span> ${show(
+    data.keywordsRule
+  )}</div>
+  <div><span class="label">키워드 (GPT):</span> ${show(
+    data.keywordsOpenAI
+  )}</div>
+  <div><span class="label">키워드 (Kiwi):</span> ${show(
+    data.keywordsKiwi
+  )}</div>
+
+  <div style="margin-top: 1.5em"><span class="label">💊 호르몬 (Rule):</span> ${show(
+    data.hormoneRule
+  )}</div>
+  <div><span class="label">💊 호르몬 (GPT):</span> ${show(
+    data.hormoneGPT
+  )}</div>
+  <div><span class="label">💊 호르몬 (Kiwi):</span> ${show(
+    data.hormoneKIWI
+  )}</div>
+
+  <div><span class="label">🥦 영양소 (Rule):</span> ${show(
+    data.nutrientsRule
+  )}</div>
+  <div><span class="label">🥦 영양소 (GPT):</span> ${show(
+    data.nutrientsGPT
+  )}</div>
+  <div><span class="label">🥦 영양소 (Kiwi):</span> ${show(
+    data.nutrientsKIWI
+  )}</div>
+
+  <div><span class="label">🍱 추천 음식 (Rule):</span> ${show(
+    data.mappedFoodsRule
+  )}</div>
+  <div><span class="label">🍱 추천 음식 (GPT):</span> ${show(
+    data.mappedFoodsGPT
+  )}</div>
+  <div><span class="label">🍱 추천 음식 (Kiwi):</span> ${show(
+    data.mappedFoodsKIWI
+  )}</div>
+  `;
       }
     </script>
   </body>

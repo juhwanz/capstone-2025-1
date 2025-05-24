@@ -17,15 +17,29 @@ const db = new sqlite3.Database(DB_FILE, (err) => {
   console.log("새 DB 연결 성공");
 
   // 3. 테이블 생성
+  // 3. 테이블 생성
   db.run(
     `CREATE TABLE IF NOT EXISTS history (
-      id INTEGER PRIMARY KEY,
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       input TEXT,
       keywordsRule TEXT,
       keywordsGPT TEXT,
       keywordsKIWI TEXT,
-      emotion TEXT,
-      output TEXT,
+      outputRule TEXT,
+      outputGPT TEXT,
+      outputKIWI TEXT,
+      emotionRule TEXT,
+      emotionGPT TEXT,
+      emotionKIWI TEXT,
+      hormoneRule TEXT,
+      hormoneGPT TEXT,
+      hormoneKIWI TEXT,
+      nutrientsRule TEXT,
+      nutrientsGPT TEXT,
+      nutrientsKIWI TEXT,
+      foodsRule TEXT,
+      foodsGPT TEXT,
+      foodsKIWI TEXT,
       timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
     (err) => {

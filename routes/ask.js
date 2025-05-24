@@ -47,38 +47,104 @@ router.post("/ask", async (req, res) => {
     }
 
     // GPT 해몽 - 규칙 기반 키워드
-
-    let aiReply = "";
+    let aiReply_rule = "";
     try {
-      aiReply = await getDreamInterpretation(userMessage, keywordsRule, apiKey);
+      aiReply_rule = await getDreamInterpretation(
+        userMessage,
+        keywordsRule,
+        apiKey
+      );
     } catch (e) {
-      aiReply = "해몽을 생성하는 데 실패했습니다.";
+      aiReply_rule = "해몽을 생성하는 데 실패했습니다.";
+    }
+
+    // GPT 해몽 - GPT 기반 키워드
+    let aiReply_GPT = "";
+    try {
+      aiReply_GPT = await getDreamInterpretation(
+        userMessage,
+        keywordsOpenAI,
+        apiKey
+      );
+    } catch (e) {
+      aiReply_GPT = "해몽을 생성하는 데 실패했습니다.";
+    }
+
+    // GPT 해몽 - KIWI 기반 키워드
+    let aiReply_Kiwi = "";
+    try {
+      aiReply_Kiwi = await getDreamInterpretation(
+        userMessage,
+        keywordsKiwi,
+        apiKey
+      );
+    } catch (e) {
+      aiReply_Kiwi = "해몽을 생성하는 데 실패했습니다.";
     }
 
     // GPT 해몽 결과로 감정 추출
-    let emotion = null;
+    let emotion_rule = null;
+    let emotion_gpt = null;
+    let emotion_kiwi = null;
+
     try {
-      emotion = await extractEmotionWithOpenAI(aiReply, apiKey);
+      emotion_rule = await extractEmotionWithOpenAI(aiReply_rule, apiKey);
+      emotion_gpt = await extractEmotionWithOpenAI(aiReply_GPT, apiKey);
+      emotion_kiwi = await extractEmotionWithOpenAI(aiReply_Kiwi, apiKey);
     } catch (e) {
-      emotion = null;
+      emotion_rule = null;
+      emotion_gpt = null;
+      emotion_kiwi = null;
     }
 
     // 해몽 결과로 감정 예측
-    let emotionInfo = { hormones: [], nutrients: [], foods: [] };
-    if (emotion && emotionMap[emotion]) {
-      emotionInfo = emotionMap[emotion];
-    }
+    const emotionInfoRule = emotionMap[emotion_rule] || {
+      hormones: [],
+      nutrients: [],
+      foods: [],
+    };
+    const emotionInfoGPT = emotionMap[emotion_gpt] || {
+      hormones: [],
+      nutrients: [],
+      foods: [],
+    };
+    const emotionInfoKIWI = emotionMap[emotion_kiwi] || {
+      hormones: [],
+      nutrients: [],
+      foods: [],
+    };
 
     // DB 저장
     db.run(
-      "INSERT INTO history (input, keywordsRule, keywordsGPT, keywordsKIWI, emotion, output) VALUES (?, ?, ?, ?, ?, ?)",
+      `INSERT INTO history (
+    input,
+    keywordsRule,keywordsGPT,keywordsKIWI,
+    outputRule, outputGPT, outputKIWI,
+    emotionRule,emotionGPT,emotionKIWI,
+    hormoneRule, hormoneGPT, hormoneKIWI,
+    nutrientsRule, nutrientsGPT, nutrientsKIWI,
+    foodsRule, foodsGPT, foodsKIWI
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         userMessage,
         JSON.stringify(keywordsRule),
         JSON.stringify(keywordsOpenAI),
         JSON.stringify(keywordsKiwi),
-        emotion,
-        aiReply,
+        aiReply_rule,
+        aiReply_GPT,
+        aiReply_Kiwi,
+        emotion_rule,
+        emotion_gpt,
+        emotion_kiwi,
+        JSON.stringify(emotionInfoRule.hormones),
+        JSON.stringify(emotionInfoGPT.hormones),
+        JSON.stringify(emotionInfoKIWI.hormones),
+        JSON.stringify(emotionInfoRule.nutrients),
+        JSON.stringify(emotionInfoGPT.nutrients),
+        JSON.stringify(emotionInfoKIWI.nutrients),
+        JSON.stringify(emotionInfoRule.foods),
+        JSON.stringify(emotionInfoGPT.foods),
+        JSON.stringify(emotionInfoKIWI.foods),
       ],
       (err) => {
         if (err) console.error("DB 저장 오류:", err.message);
@@ -88,15 +154,24 @@ router.post("/ask", async (req, res) => {
 
     // 응답
     res.json({
-      reply: aiReply,
-      emotion: emotion || "감정 추출 불가",
       keywordsRule,
       keywordsOpenAI,
       keywordsKiwi,
-      foods: emotionInfo.foods,
-      hormone: emotionInfo.hormones,
-      nutrients: emotionInfo.nutrients,
-      mappedFoods: emotionInfo.foods,
+      outputRule: aiReply_rule,
+      outputGPT: aiReply_GPT,
+      outputKIWI: aiReply_Kiwi,
+      emotionRule: emotion_rule || "감정 추출 불가",
+      emotionGPT: emotion_gpt || "감정 추출 불가",
+      emotionKIWI: emotion_kiwi || "감정 추출 불가",
+      mappedFoodsRule: emotionInfoRule.foods,
+      mappedFoodsGPT: emotionInfoGPT.foods,
+      mappedFoodsKIWI: emotionInfoKIWI.foods,
+      hormoneRule: emotionInfoRule.hormones,
+      hormoneGPT: emotionInfoGPT.hormones,
+      hormoneKIWI: emotionInfoKIWI.hormones,
+      nutrientsRule: emotionInfoRule.nutrients,
+      nutrientsGPT: emotionInfoGPT.nutrients,
+      nutrientsKIWI: emotionInfoKIWI.nutrients,
     });
   } catch (e) {
     console.error("API 오류:", e.stack || e);
