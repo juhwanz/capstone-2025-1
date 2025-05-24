@@ -1,3 +1,6 @@
+import fs from "fs";
+import path from "path";
+
 export function saveHistoryToJson(db) {
   db.all("SELECT * FROM history ORDER BY timestamp DESC", (err, rows) => {
     if (err) return;

@@ -124,7 +124,7 @@ router.post("/ask", async (req, res) => {
     hormoneRule, hormoneGPT, hormoneKIWI,
     nutrientsRule, nutrientsGPT, nutrientsKIWI,
     foodsRule, foodsGPT, foodsKIWI
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
       [
         userMessage,
         JSON.stringify(keywordsRule),

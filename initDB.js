@@ -20,7 +20,7 @@ const db = new sqlite3.Database(DB_FILE, (err) => {
   // 3. 테이블 생성
   db.run(
     `CREATE TABLE IF NOT EXISTS history (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id INTEGER PRIMARY KEY,
       input TEXT,
       keywordsRule TEXT,
       keywordsGPT TEXT,
